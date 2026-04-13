@@ -821,5 +821,11 @@ function updateHeaderDate() {
 updateHeaderDate(); setInterval(updateHeaderDate,60000);
 refreshAll();
 </script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker Registered'));
+}
+</script>
 </body>
 </html>
