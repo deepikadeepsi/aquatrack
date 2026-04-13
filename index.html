@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0ea5e9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AquaTrack - Water Can Service</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --primary: #0ea5e9; --primary-dark: #0369a1; --primary-light: #e0f2fe;
+  --accent: #f97316; --accent-light: #fff7ed;
+  --success: #10b981; --success-light: #d1fae5;
+  --warning: #f59e0b; --warning-light: #fef3c7;
+  --danger: #ef4444; --danger-light: #fee2e2;
+  --purple: #8b5cf6; --purple-light: #ede9fe;
+  --bg: #f0f9ff; --surface: #ffffff; --surface2: #f8fafc;
+  --text: #0f172a; --text-muted: #64748b; --text-light: #94a3b8;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+  --radius: 16px; --radius-sm: 12px;
+  --nav-height: 70px; --header-height: 62px;
+}
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
+/* HEADER */
+.app-header { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 60%, #0369a1 100%); color: white; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 16px rgba(14,165,233,0.35); height: var(--header-height); }
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 38px; height: 38px; background: rgba(255,255,255,0.2); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.header-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+.header-subtitle { font-size: 11px; opacity: 0.75; font-weight: 500; }
+.header-date { font-size: 12px; opacity: 0.9; text-align: right; font-weight: 600; line-height: 1.5; }
+/* BOTTOM NAV */
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: flex; height: var(--nav-height); box-shadow: 0 -4px 20px rgba(0,0,0,0.08); z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; background: none; border: none; color: var(--text-light); font-family: inherit; padding: 8px 2px; transition: all 0.18s; }
+.nav-item.active { color: var(--primary); }
+.nav-icon { font-size: 24px; line-height: 1; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2px; }
+/* PAGES */
+.page { display: none; padding: 16px 16px calc(var(--nav-height) + 20px); min-height: calc(100vh - var(--header-height)); }
+.page.active { display: block; }
+/* CARDS */
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 12px; }
+.card-title { font-size: 15px; font-weight: 700; }
+/* STAT GRID */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.stat-card { border-radius: var(--radius-sm); padding: 14px 12px; position: relative; overflow: hidden; }
+.stat-card.blue   { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
+.stat-card.orange { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+.stat-card.green  { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.stat-card.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+.stat-card.red    { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.stat-label { font-size: 11px; font-weight: 600; opacity: 0.85; letter-spacing: 0.5px; text-transform: uppercase; }
+.stat-value { font-size: 26px; font-weight: 800; margin-top: 4px; line-height: 1; font-family: 'Space Grotesk', sans-serif; }
+.stat-sub   { font-size: 11px; opacity: 0.8; margin-top: 4px; }
+.stat-icon  { position: absolute; right: 10px; top: 10px; font-size: 30px; opacity: 0.18; }
+/* BUTTONS — 48px min touch targets */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: var(--radius-sm); font-family: inherit; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; text-decoration: none; min-height: 50px; font-size: 15px; padding: 0 20px; white-space: nowrap; }
+.btn:active { transform: scale(0.97); }
+.btn-full { width: 100%; }
+.btn-primary     { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
+.btn-accent      { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+.btn-success-full{ background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.btn-danger-full { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.btn-outline     { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+.btn-outline-danger { background: transparent; border: 2px solid var(--danger); color: var(--danger); }
+.btn-icon  { width: 46px; height: 46px; min-height: 46px; padding: 0; border-radius: 10px; font-size: 18px; flex-shrink: 0; }
+.btn-edit  { background: var(--primary-light); color: var(--primary-dark); }
+.btn-del   { background: var(--danger-light);  color: var(--danger); }
+.btn-log   { background: var(--success-light); color: #065f46; }
+.btn-sm    { min-height: 38px; font-size: 13px; padding: 0 14px; border-radius: 9px; }
+/* FAB */
+.fab { position: fixed; bottom: calc(var(--nav-height) + 16px); right: 18px; width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-size: 28px; box-shadow: 0 4px 18px rgba(14,165,233,0.45); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; font-family: inherit; transition: all 0.2s; z-index: 50; }
+.fab:active { transform: scale(0.94); }
+/* FORM */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; display: block; }
+.form-control { width: 100%; padding: 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface2); font-family: inherit; font-size: 15px; color: var(--text); transition: border-color 0.15s; outline: none; min-height: 50px; }
+.form-control:focus { border-color: var(--primary); background: white; }
+select.form-control { cursor: pointer; }
+textarea.form-control { min-height: 80px; resize: vertical; }
+/* MODALS */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.65); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(3px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.22s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 44px; height: 5px; background: var(--border); border-radius: 3px; margin: 0 auto 18px; }
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
+.modal-spacer { height: 10px; }
+/* LIST */
+.list-item { background: var(--surface); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; border: 1.5px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.list-avatar { width: 48px; height: 48px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; flex-shrink: 0; }
+.list-info { flex: 1; min-width: 0; }
+.list-name   { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-detail { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.list-actions { display: flex; gap: 6px; flex-shrink: 0; }
+/* BADGE */
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-blue   { background: var(--primary-light); color: var(--primary-dark); }
+.badge-orange { background: var(--accent-light); color: #c2410c; }
+.badge-green  { background: var(--success-light); color: #065f46; }
+.badge-purple { background: var(--purple-light); color: #5b21b6; }
+.badge-red    { background: var(--danger-light); color: #b91c1c; }
+/* SECTION HEADER */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title  { font-size: 17px; font-weight: 800; }
+.section-count  { font-size: 13px; color: var(--text-muted); font-weight: 600; background: var(--surface2); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); }
+/* VENDOR COLORS */
+.vc-0{background:#dbeafe;color:#1e40af}.vc-1{background:#fce7f3;color:#9d174d}.vc-2{background:#d1fae5;color:#065f46}.vc-3{background:#ede9fe;color:#5b21b6}.vc-4{background:#fef3c7;color:#92400e}.vc-5{background:#fee2e2;color:#991b1b}
+/* WAVE */
+.wave-bg { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 60%, #0369a1 100%); border-radius: 0 0 28px 28px; margin: -16px -16px 16px; padding: 22px 20px 30px; color: white; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.2); color: white; margin: 3px 3px 0 0; }
+/* INFO ROW */
+.info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; gap: 12px; }
+.info-row:last-child { border-bottom: none; }
+.info-key { font-size: 13px; color: var(--text-muted); font-weight: 500; flex-shrink: 0; }
+.info-val { font-size: 13px; font-weight: 700; text-align: right; }
+/* MONTH SELECTOR */
+.month-selector { display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 14px; border: 1.5px solid var(--border); }
+.month-selector select { flex: 1; border: none; background: none; font-family: inherit; font-size: 15px; font-weight: 700; color: var(--text); outline: none; }
+/* TOAST */
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-120%); background: #0f172a; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; transition: transform 0.3s; white-space: nowrap; max-width: 90vw; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+/* CONFIRM */
+.confirm-box { text-align: center; padding: 10px 0 4px; }
+.confirm-icon { font-size: 52px; margin-bottom: 12px; }
+.confirm-msg  { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.confirm-sub  { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.5; }
+/* DELIVERY CARD */
+.delivery-card { background: var(--surface); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; border: 1.5px solid var(--border); }
+.delivery-card-top  { display: flex; align-items: center; gap: 10px; }
+.delivery-card-meta { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+/* PRICE ROW */
+.price-row { display: flex; align-items: center; justify-content: space-between; padding: 13px; background: var(--surface); border-radius: var(--radius-sm); margin-bottom: 8px; border: 1.5px solid var(--border); gap: 10px; }
+.pname { font-size: 14px; font-weight: 700; }
+.pdate { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.price-rs { font-size: 22px; font-weight: 800; color: var(--accent); font-family: 'Space Grotesk', sans-serif; }
+/* CAN ITEM */
+.can-item { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: var(--radius-sm); background: var(--surface); margin-bottom: 10px; border: 1.5px solid var(--border); }
+.can-icon-wrap { width: 50px; height: 50px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+.can-name      { font-size: 15px; font-weight: 700; }
+.can-price-val { font-size: 22px; font-weight: 800; color: var(--accent); font-family: 'Space Grotesk', sans-serif; }
+.can-price-unit{ font-size: 11px; color: var(--text-muted); }
+/* PROGRESS BAR */
+.progress-bar  { background: var(--surface2); border-radius: 4px; height: 7px; overflow: hidden; margin-top: 8px; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+/* REPORT */
+.report-line { display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.report-line:last-child { border-bottom: none; }
+.report-line.total { border-top: 2px solid var(--primary); border-bottom: none; padding-top: 13px; margin-top: 4px; }
+.report-key { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.report-val { font-size: 14px; font-weight: 700; }
+.report-line.total .report-key { font-weight: 800; font-size: 15px; color: var(--text); }
+.report-line.total .report-val { font-size: 16px; color: var(--primary); }
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 48px 20px; }
+.empty-icon  { font-size: 60px; margin-bottom: 14px; }
+.empty-title { font-size: 17px; font-weight: 700; }
+.empty-sub   { font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+/* TOTAL PREVIEW */
+.total-preview { background: var(--primary-light); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; }
+.total-preview-label { font-size: 12px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+.total-preview-value { font-size: 30px; font-weight: 800; color: var(--primary-dark); font-family: 'Space Grotesk', sans-serif; margin-top: 4px; }
+/* SEARCH */
+.search-box { position: relative; margin-bottom: 14px; }
+.search-box input { padding-left: 46px; }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+/* TENURE */
+.tenure-active  { color: #065f46; background: var(--success-light); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+.tenure-expired { color: #b91c1c; background: var(--danger-light);  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-logo">
+    <div class="logo-icon">💧</div>
+    <div>
+      <div class="header-title">AquaTrack</div>
+      <div class="header-subtitle">Water Can Service</div>
+    </div>
+  </div>
+  <div class="header-date" id="headerDate"></div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="page active" id="page-dashboard">
+  <div class="wave-bg">
+    <div style="font-size:12px;font-weight:700;opacity:0.75;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">This Month's Revenue</div>
+    <div style="font-size:38px;font-weight:800;font-family:'Space Grotesk',sans-serif;" id="dash-revenue">₹0</div>
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;">
+      <div class="chip">🛢️ <span id="dash-cans-given">0</span> Delivered</div>
+      <div class="chip">🔄 <span id="dash-cans-empty">0</span> Returned</div>
+      <div class="chip">👥 <span id="dash-vendors">0</span> Vendors</div>
+      <div class="chip">📦 <span id="dash-pending">0</span> Pending</div>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card blue"><div class="stat-icon">🛢️</div><div class="stat-label">Cans Given</div><div class="stat-value" id="stat-given">0</div><div class="stat-sub">this month</div></div>
+    <div class="stat-card orange"><div class="stat-icon">🔄</div><div class="stat-label">Empties Back</div><div class="stat-value" id="stat-empty">0</div><div class="stat-sub">this month</div></div>
+    <div class="stat-card green"><div class="stat-icon">💰</div><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue" style="font-size:20px;">₹0</div><div class="stat-sub">this month</div></div>
+    <div class="stat-card purple"><div class="stat-icon">📦</div><div class="stat-label">Outstanding</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub">cans pending</div></div>
+  </div>
+  <div class="section-header">
+    <div class="section-title">Recent Deliveries</div>
+    <button class="btn btn-outline btn-sm" onclick="showPage('deliveries')" style="width:auto;">See All</button>
+  </div>
+  <div id="recent-deliveries-list"></div>
+</div>
+
+<!-- ===== VENDORS ===== -->
+<div class="page" id="page-vendors">
+  <div class="section-header">
+    <div class="section-title">Vendors</div>
+    <span class="section-count" id="vendor-count-label">0 total</span>
+  </div>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input class="form-control" id="vendor-search" placeholder="Search by name or phone…" oninput="renderVendors()">
+  </div>
+  <div id="vendors-list"></div>
+</div>
+
+<!-- ===== DELIVERIES ===== -->
+<div class="page" id="page-deliveries">
+  <div class="section-header">
+    <div class="section-title">Deliveries</div>
+    <span class="section-count" id="delivery-count-label">0 logs</span>
+  </div>
+  <div class="month-selector">
+    <span>📅</span>
+    <select id="delivery-month-filter" onchange="renderDeliveries()"></select>
+  </div>
+  <div id="deliveries-list"></div>
+</div>
+
+<!-- ===== PRICES ===== -->
+<div class="page" id="page-prices">
+  <div class="section-header">
+    <div class="section-title">Can Types</div>
+    <span class="section-count" id="cantype-count-label">0 types</span>
+  </div>
+  <div id="can-types-list"></div>
+  <div class="section-header" style="margin-top:20px;">
+    <div class="section-title">Price History</div>
+    <span class="section-count" id="price-history-count">0 entries</span>
+  </div>
+  <div id="price-history-list"></div>
+</div>
+
+<!-- ===== REPORTS ===== -->
+<div class="page" id="page-reports">
+  <div class="section-header">
+    <div class="section-title">Monthly Report</div>
+  </div>
+  <div class="month-selector">
+    <span>📅</span>
+    <select id="report-month" onchange="renderReport()"></select>
+  </div>
+  <select class="form-control" id="report-vendor-filter" onchange="renderReport()" style="margin-bottom:14px;"></select>
+  <div id="report-content"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('dashboard')"  id="nav-dashboard" ><div class="nav-icon">🏠</div><div class="nav-label">Home</div></button>
+  <button class="nav-item"        onclick="showPage('vendors')"    id="nav-vendors"   ><div class="nav-icon">👥</div><div class="nav-label">Vendors</div></button>
+  <button class="nav-item"        onclick="showPage('deliveries')" id="nav-deliveries"><div class="nav-icon">🚚</div><div class="nav-label">Deliveries</div></button>
+  <button class="nav-item"        onclick="showPage('prices')"     id="nav-prices"    ><div class="nav-icon">🏷️</div><div class="nav-label">Prices</div></button>
+  <button class="nav-item"        onclick="showPage('reports')"    id="nav-reports"   ><div class="nav-icon">📊</div><div class="nav-label">Reports</div></button>
+</nav>
+<button class="fab" id="fab-btn" onclick="fabAction()">+</button>
+
+<!-- ===== VENDOR MODAL ===== -->
+<div class="modal-overlay" id="vendor-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="vendor-modal-title">Add Vendor</div>
+    <input type="hidden" id="vendor-edit-id">
+    <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" id="v-name" placeholder="e.g. Ravi Kumar"></div>
+    <div class="form-group"><label class="form-label">Phone Number *</label><input class="form-control" id="v-phone" placeholder="9876543210" type="tel"></div>
+    <div class="form-group"><label class="form-label">Address</label><textarea class="form-control" id="v-address" placeholder="Street, Area, City"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group"><label class="form-label">Service Start</label><input class="form-control" id="v-start" type="date"></div>
+      <div class="form-group"><label class="form-label">Service End</label><input class="form-control" id="v-end" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input class="form-control" id="v-notes" placeholder="Special instructions…"></div>
+    <button class="btn btn-primary btn-full" onclick="saveVendor()">💾 Save Vendor</button>
+    <div class="modal-spacer"></div>
+    <button class="btn btn-outline btn-full" onclick="closeModal('vendor-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== VENDOR DETAIL MODAL ===== -->
+<div class="modal-overlay" id="vendor-detail-modal">
+  <div class="modal"><div class="modal-handle"></div><div id="vendor-detail-content"></div></div>
+</div>
+
+<!-- ===== DELIVERY MODAL ===== -->
+<div class="modal-overlay" id="delivery-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="delivery-modal-title">Log Delivery</div>
+    <input type="hidden" id="delivery-edit-id">
+    <div class="form-group"><label class="form-label">Vendor *</label><select class="form-control" id="d-vendor"><option value="">Select vendor…</option></select></div>
+    <div class="form-group"><label class="form-label">Date *</label><input class="form-control" id="d-date" type="date"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group"><label class="form-label">Can Type *</label><select class="form-control" id="d-can-type"><option value="">Select…</option></select></div>
+      <div class="form-group"><label class="form-label">Cans Given *</label><input class="form-control" id="d-given" type="number" min="0" placeholder="0" oninput="updateDeliveryTotal()"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Empty Cans Returned</label><input class="form-control" id="d-empty" type="number" min="0" placeholder="0"></div>
+    <div class="form-group"><label class="form-label">Price Per Can ₹ (auto-filled)</label><input class="form-control" id="d-price" type="number" min="0" placeholder="Auto from price list" oninput="updateDeliveryTotal()"></div>
+    <div class="total-preview">
+      <div class="total-preview-label">Total Amount</div>
+      <div class="total-preview-value" id="d-total-preview">₹0</div>
+    </div>
+    <div class="form-group"><label class="form-label">Remarks</label><input class="form-control" id="d-remarks" placeholder="Optional notes…"></div>
+    <button class="btn btn-primary btn-full" onclick="saveDelivery()">💾 Save Delivery</button>
+    <div class="modal-spacer"></div>
+    <button class="btn btn-outline btn-full" onclick="closeModal('delivery-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== PRICE MODAL ===== -->
+<div class="modal-overlay" id="price-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="price-modal-title">Add Price Entry</div>
+    <input type="hidden" id="price-edit-id">
+    <div class="form-group"><label class="form-label">Can Type Name *</label><input class="form-control" id="p-name" placeholder="e.g. 20L Standard Can"></div>
+    <div class="form-group"><label class="form-label">Price Per Can ₹ *</label><input class="form-control" id="p-price" type="number" min="0" placeholder="30"></div>
+    <div class="form-group"><label class="form-label">Effective From *</label><input class="form-control" id="p-date" type="date"></div>
+    <div class="form-group"><label class="form-label">Notes</label><input class="form-control" id="p-notes" placeholder="Price revision reason…"></div>
+    <button class="btn btn-primary btn-full" onclick="savePrice()">💾 Save Price</button>
+    <div class="modal-spacer"></div>
+    <button class="btn btn-outline btn-full" onclick="closeModal('price-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== CONFIRM MODAL ===== -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="confirm-box">
+      <div class="confirm-icon" id="confirm-icon">🗑️</div>
+      <div class="confirm-msg"  id="confirm-msg">Are you sure?</div>
+      <div class="confirm-sub"  id="confirm-sub">This action cannot be undone.</div>
+    </div>
+    <button class="btn btn-danger-full btn-full" id="confirm-yes-btn">Yes, Delete</button>
+    <div class="modal-spacer"></div>
+    <button class="btn btn-outline btn-full" onclick="closeModal('confirm-modal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ── DATA LAYER (localStorage — swap DB.get/set with fetch() for MySQL) ──────
+const DB = {
+  get:  k     => JSON.parse(localStorage.getItem('aqt_'+k) || '[]'),
+  set:  (k,v) => localStorage.setItem('aqt_'+k, JSON.stringify(v)),
+  nextId(k) { const id = parseInt(localStorage.getItem('aqt_id_'+k)||'0')+1; localStorage.setItem('aqt_id_'+k,id); return id; }
+};
+
+// Seed demo data once
+(function seed(){
+  if (DB.get('vendors').length) return;
+  const y=new Date().getFullYear(), m=String(new Date().getMonth()+1).padStart(2,'0');
+  DB.set('vendors',[
+    {id:1,name:'Ravi Kumar',  phone:'9876543210',address:'12, MG Road, Koramangala, Bengaluru',start:'2024-01-01',end:'',         notes:'2nd floor', color:0},
+    {id:2,name:'Sunita Devi', phone:'9123456789',address:'45, 5th Cross, Jayanagar, Bengaluru', start:'2024-03-01',end:'2025-12-31',notes:'',          color:1},
+    {id:3,name:'Mohammed Ali',phone:'9988776655',address:'7, HSR Layout, Sector 2, Bengaluru',  start:'2024-06-15',end:'',         notes:'Office',     color:2},
+  ]);
+  localStorage.setItem('aqt_id_vendors','3');
+  DB.set('prices',[
+    {id:1,name:'20L Standard Can',price:25,date:'2024-01-01',        notes:'Initial price'},
+    {id:2,name:'20L Standard Can',price:30,date:`${y}-${m}-01`,      notes:'Price revision'},
+    {id:3,name:'10L Mini Can',    price:15,date:'2024-01-01',        notes:'Initial price'},
+  ]);
+  localStorage.setItem('aqt_id_prices','3');
+  const d=n=>`${y}-${m}-${String(n).padStart(2,'0')}`;
+  DB.set('deliveries',[
+    {id:1,vendorId:1,date:d(1),canType:'20L Standard Can',given:20,empty:20,price:30,total:600,remarks:''},
+    {id:2,vendorId:2,date:d(2),canType:'20L Standard Can',given:15,empty:10,price:30,total:450,remarks:'Short 5 empties'},
+    {id:3,vendorId:3,date:d(3),canType:'10L Mini Can',    given:10,empty:10,price:15,total:150,remarks:'Office order'},
+    {id:4,vendorId:1,date:d(5),canType:'20L Standard Can',given:20,empty:20,price:30,total:600,remarks:''},
+    {id:5,vendorId:2,date:d(7),canType:'10L Mini Can',    given:5, empty:5, price:15,total:75, remarks:''},
+  ]);
+  localStorage.setItem('aqt_id_deliveries','5');
+})();
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+let currentPage = 'dashboard';
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  currentPage = p;
+  document.getElementById('fab-btn').style.display = p==='reports' ? 'none' : 'flex';
+  refreshAll();
+}
+function fabAction() {
+  if (currentPage==='vendors'||currentPage==='dashboard') openVendorModal();
+  else if (currentPage==='deliveries') openDeliveryModal();
+  else if (currentPage==='prices')     openPriceModal();
+}
+
+// ── UTILITIES ─────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+function today()  { return new Date().toISOString().split('T')[0]; }
+function fmtDate(d) { return d ? new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : ''; }
+function fmtShort(d){ return d ? new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : ''; }
+function getCurrentMonth() { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; }
+function monthLabel(ym)    { const [y,m]=ym.split('-'); return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'}); }
+function getMonths()       { const s=new Set(DB.get('deliveries').map(d=>d.date.substring(0,7))); s.add(getCurrentMonth()); return [...s].sort().reverse(); }
+function getCanIcon(name)  { return name.includes('20')?'🛢️':name.includes('10')?'🪣':'💧'; }
+function getCurrentPrice(type,asOf) {
+  const list=DB.get('prices').filter(p=>p.name===type&&p.date<=(asOf||today()));
+  if(!list.length) return null;
+  return list.sort((a,b)=>b.date.localeCompare(a.date))[0].price;
+}
+function initials(name) { return name.split(' ').map(x=>x[0]).join('').toUpperCase().substring(0,2); }
+const GRAD=['linear-gradient(135deg,#0ea5e9,#0284c7)','linear-gradient(135deg,#f97316,#ea580c)','linear-gradient(135deg,#10b981,#059669)','linear-gradient(135deg,#8b5cf6,#7c3aed)','linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#ef4444,#dc2626)'];
+
+// ── CONFIRM DIALOG ────────────────────────────────────────────────────────────
+function confirm2(msg,sub,onYes,icon='🗑️',btnLabel='Yes, Delete') {
+  document.getElementById('confirm-icon').textContent=icon;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-sub').textContent=sub;
+  const btn=document.getElementById('confirm-yes-btn');
+  btn.textContent=btnLabel;
+  btn.onclick=()=>{closeModal('confirm-modal');onYes();};
+  openModal('confirm-modal');
+}
+
+// ── VENDORS — Full CRUD ───────────────────────────────────────────────────────
+function openVendorModal(id) {
+  document.getElementById('vendor-edit-id').value=id||'';
+  document.getElementById('vendor-modal-title').textContent=id?'Edit Vendor':'Add Vendor';
+  if(id) {
+    const v=DB.get('vendors').find(x=>x.id==id);
+    document.getElementById('v-name').value   =v.name;
+    document.getElementById('v-phone').value  =v.phone;
+    document.getElementById('v-address').value=v.address||'';
+    document.getElementById('v-start').value  =v.start||'';
+    document.getElementById('v-end').value    =v.end||'';
+    document.getElementById('v-notes').value  =v.notes||'';
+  } else {
+    ['v-name','v-phone','v-address','v-notes'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('v-start').value=today();
+    document.getElementById('v-end').value='';
+  }
+  closeModal('vendor-detail-modal');
+  openModal('vendor-modal');
+}
+function saveVendor() {
+  const name=document.getElementById('v-name').value.trim();
+  const phone=document.getElementById('v-phone').value.trim();
+  if(!name||!phone){showToast('⚠️ Name and phone are required');return;}
+  const editId=document.getElementById('vendor-edit-id').value;
+  const vendors=DB.get('vendors');
+  const obj={name,phone,address:document.getElementById('v-address').value.trim(),start:document.getElementById('v-start').value,end:document.getElementById('v-end').value,notes:document.getElementById('v-notes').value.trim(),color:editId?vendors.find(v=>v.id==editId)?.color||0:Math.floor(Math.random()*6)};
+  if(editId){vendors[vendors.findIndex(v=>v.id==editId)]={...vendors.find(v=>v.id==editId),...obj};showToast('✅ Vendor updated!');}
+  else{obj.id=DB.nextId('vendors');vendors.push(obj);showToast('✅ Vendor added!');}
+  DB.set('vendors',vendors); closeModal('vendor-modal'); refreshAll();
+}
+function deleteVendor(id) {
+  const v=DB.get('vendors').find(x=>x.id==id);
+  confirm2(`Delete ${v.name}?`,'All delivery records will also be deleted permanently.',()=>{
+    DB.set('vendors',DB.get('vendors').filter(x=>x.id!=id));
+    DB.set('deliveries',DB.get('deliveries').filter(d=>d.vendorId!=id));
+    refreshAll(); showToast('🗑️ Vendor deleted');
+  });
+}
+function renderVendors() {
+  const search=( document.getElementById('vendor-search').value||'').toLowerCase();
+  const vendors=DB.get('vendors').filter(v=>v.name.toLowerCase().includes(search)||v.phone.includes(search));
+  const deliveries=DB.get('deliveries'); const cur=getCurrentMonth();
+  document.getElementById('vendor-count-label').textContent=vendors.length+' total';
+  const el=document.getElementById('vendors-list');
+  if(!vendors.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No vendors found</div><div class="empty-sub">Tap + to add your first customer</div></div>`;return;}
+  el.innerHTML=vendors.map(v=>{
+    const mDel=deliveries.filter(d=>d.vendorId==v.id&&d.date.startsWith(cur));
+    const cans=mDel.reduce((a,d)=>a+d.given,0);
+    const rev=mDel.reduce((a,d)=>a+d.total,0);
+    const inits=initials(v.name);
+    const active=!v.end||v.end>=today();
+    return `<div class="list-item">
+      <div class="list-avatar vc-${v.color}" style="cursor:pointer;" onclick="showVendorDetail(${v.id})">${inits}</div>
+      <div class="list-info" onclick="showVendorDetail(${v.id})" style="cursor:pointer;">
+        <div class="list-name">${v.name}</div>
+        <div class="list-detail">📞 ${v.phone}${v.address?' · '+v.address.split(',')[0]:''}</div>
+        <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap;">
+          <span class="badge badge-blue">🛢️ ${cans}</span>
+          <span class="badge badge-green">₹${rev.toLocaleString('en-IN')}</span>
+          <span class="${active?'tenure-active':'tenure-expired'}">${active?'Active':'Expired'}</span>
+        </div>
+      </div>
+      <div class="list-actions">
+        <button class="btn btn-icon btn-edit" onclick="openVendorModal(${v.id})">✏️</button>
+        <button class="btn btn-icon btn-del"  onclick="deleteVendor(${v.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showVendorDetail(id) {
+  const v=DB.get('vendors').find(x=>x.id==id);
+  const deliveries=DB.get('deliveries').filter(d=>d.vendorId==id);
+  const tGiven=deliveries.reduce((a,d)=>a+d.given,0);
+  const tEmpty=deliveries.reduce((a,d)=>a+(d.empty||0),0);
+  const tRev  =deliveries.reduce((a,d)=>a+d.total,0);
+  const mDel  =deliveries.filter(d=>d.date.startsWith(getCurrentMonth()));
+  const inits =initials(v.name);
+  const active=!v.end||v.end>=today();
+  const rows  =[...deliveries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(d=>
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-size:13px;font-weight:700;">${d.canType} × ${d.given}</div><div style="font-size:11px;color:var(--text-muted);">${fmtDate(d.date)} · 🔄 ${d.empty} returned</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="font-size:15px;font-weight:800;color:var(--primary);">₹${d.total.toLocaleString('en-IN')}</div>
+        <button class="btn btn-icon btn-edit btn-sm" onclick="openDeliveryModal(${d.id})">✏️</button>
+        <button class="btn btn-icon btn-del  btn-sm" onclick="closeModal('vendor-detail-modal');deleteDelivery(${d.id})">🗑️</button>
+      </div>
+    </div>`
+  ).join('')||'<div style="color:var(--text-muted);font-size:13px;padding:16px 0;text-align:center;">No deliveries yet</div>';
+  document.getElementById('vendor-detail-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+      <div class="list-avatar vc-${v.color}" style="width:60px;height:60px;border-radius:16px;font-size:22px;">${inits}</div>
+      <div style="flex:1;"><div style="font-size:22px;font-weight:800;line-height:1.2;">${v.name}</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px;">📞 ${v.phone}</div><span class="${active?'tenure-active':'tenure-expired'}" style="margin-top:6px;">${active?'● Active':'● Expired'}</span></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="info-row"><span class="info-key">Address</span><span class="info-val">${v.address||'—'}</span></div>
+      <div class="info-row"><span class="info-key">Service Start</span><span class="info-val">${v.start?fmtDate(v.start):'—'}</span></div>
+      <div class="info-row"><span class="info-key">Service End</span><span class="info-val">${v.end?fmtDate(v.end):'Ongoing'}</span></div>
+      <div class="info-row"><span class="info-key">Notes</span><span class="info-val">${v.notes||'—'}</span></div>
+    </div>
+    <div class="stat-grid" style="margin-bottom:14px;">
+      <div class="stat-card blue"><div class="stat-label">Total Cans</div><div class="stat-value">${tGiven}</div></div>
+      <div class="stat-card orange"><div class="stat-label">Empties</div><div class="stat-value">${tEmpty}</div></div>
+      <div class="stat-card green"><div class="stat-label">Total Revenue</div><div class="stat-value" style="font-size:18px;">₹${tRev.toLocaleString('en-IN')}</div></div>
+      <div class="stat-card purple"><div class="stat-label">This Month</div><div class="stat-value" style="font-size:18px;">₹${mDel.reduce((a,d)=>a+d.total,0).toLocaleString('en-IN')}</div></div>
+    </div>
+    <div style="font-size:15px;font-weight:800;margin-bottom:8px;">Recent Deliveries</div>
+    ${rows}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;">
+      <button class="btn btn-primary" onclick="openVendorModal(${v.id})">✏️ Edit</button>
+      <button class="btn btn-accent"  onclick="closeModal('vendor-detail-modal');openDeliveryModalFor(${v.id})">+ Delivery</button>
+    </div>
+    <div class="modal-spacer"></div>
+    <button class="btn btn-outline-danger btn-full" onclick="closeModal('vendor-detail-modal');deleteVendor(${v.id})">🗑️ Delete Vendor</button>
+    <div class="modal-spacer"></div>
+    <button class="btn btn-outline btn-full" onclick="closeModal('vendor-detail-modal')">Close</button>
+  `;
+  openModal('vendor-detail-modal');
+}
+
+// ── DELIVERIES — Full CRUD ────────────────────────────────────────────────────
+function populateMonthFilter(selId) {
+  const sel=document.getElementById(selId);
+  const cur=sel.value||getCurrentMonth();
+  sel.innerHTML=getMonths().map(m=>`<option value="${m}" ${m===cur?'selected':''}>${monthLabel(m)}</option>`).join('');
+}
+function openDeliveryModal(id) {
+  document.getElementById('delivery-edit-id').value=id||'';
+  document.getElementById('delivery-modal-title').textContent=id?'Edit Delivery':'Log Delivery';
+  populateDeliveryVendors();
+  populateDeliveryCanTypes();
+  if(id) {
+    const d=DB.get('deliveries').find(x=>x.id==id);
+    document.getElementById('d-vendor').value  =d.vendorId;
+    document.getElementById('d-date').value    =d.date;
+    document.getElementById('d-can-type').value=d.canType;
+    document.getElementById('d-given').value   =d.given;
+    document.getElementById('d-empty').value   =d.empty||0;
+    document.getElementById('d-price').value   =d.price;
+    document.getElementById('d-remarks').value =d.remarks||'';
+  } else {
+    document.getElementById('d-vendor').value  ='';
+    document.getElementById('d-date').value    =today();
+    document.getElementById('d-can-type').value='';
+    document.getElementById('d-given').value   ='';
+    document.getElementById('d-empty').value   ='';
+    document.getElementById('d-price').value   ='';
+    document.getElementById('d-remarks').value ='';
+  }
+  updateDeliveryTotal();
+  openModal('delivery-modal');
+}
+function openDeliveryModalFor(vendorId) { openDeliveryModal(); setTimeout(()=>{ document.getElementById('d-vendor').value=vendorId; },30); }
+function populateDeliveryVendors() {
+  document.getElementById('d-vendor').innerHTML='<option value="">Select vendor…</option>'+DB.get('vendors').map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+}
+function populateDeliveryCanTypes() {
+  const types=[...new Set(DB.get('prices').map(p=>p.name))];
+  const sel=document.getElementById('d-can-type');
+  sel.innerHTML='<option value="">Select can type…</option>'+types.map(t=>`<option value="${t}">${t}</option>`).join('');
+  const autoPrice=()=>{
+    const p=getCurrentPrice(sel.value,document.getElementById('d-date').value||today());
+    if(p!=null) document.getElementById('d-price').value=p;
+    updateDeliveryTotal();
+  };
+  sel.onchange=autoPrice;
+  document.getElementById('d-date').onchange=autoPrice;
+}
+function updateDeliveryTotal() {
+  const given=parseInt(document.getElementById('d-given').value)||0;
+  const price=parseFloat(document.getElementById('d-price').value)||0;
+  document.getElementById('d-total-preview').textContent='₹'+(given*price).toLocaleString('en-IN');
+}
+function saveDelivery() {
+  const vendorId=parseInt(document.getElementById('d-vendor').value);
+  const date    =document.getElementById('d-date').value;
+  const canType =document.getElementById('d-can-type').value;
+  const given   =parseInt(document.getElementById('d-given').value)||0;
+  const price   =parseFloat(document.getElementById('d-price').value)||0;
+  if(!vendorId||!date||!canType||given<=0){showToast('⚠️ Fill all required fields');return;}
+  const deliveries=DB.get('deliveries');
+  const editId=document.getElementById('delivery-edit-id').value;
+  const obj={vendorId,date,canType,given,empty:parseInt(document.getElementById('d-empty').value)||0,price,total:given*price,remarks:document.getElementById('d-remarks').value.trim()};
+  if(editId){deliveries[deliveries.findIndex(d=>d.id==editId)]={...deliveries.find(d=>d.id==editId),...obj};showToast('✅ Delivery updated!');}
+  else{obj.id=DB.nextId('deliveries');deliveries.push(obj);showToast('✅ Delivery logged!');}
+  DB.set('deliveries',deliveries); closeModal('delivery-modal'); refreshAll();
+}
+function deleteDelivery(id) {
+  const d=DB.get('deliveries').find(x=>x.id==id);
+  const v=DB.get('vendors').find(x=>x.id==d.vendorId);
+  confirm2('Delete this delivery?',`${v?v.name:'Vendor'} · ${fmtDate(d.date)} · ₹${d.total}`,()=>{
+    DB.set('deliveries',DB.get('deliveries').filter(x=>x.id!=id));
+    refreshAll(); showToast('🗑️ Delivery deleted');
+  });
+}
+function renderDeliveries() {
+  const month=document.getElementById('delivery-month-filter').value||getCurrentMonth();
+  const deliveries=DB.get('deliveries').filter(d=>d.date.startsWith(month));
+  const vendors=DB.get('vendors');
+  deliveries.sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('delivery-count-label').textContent=deliveries.length+' logs';
+  const el=document.getElementById('deliveries-list');
+  if(!deliveries.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🚚</div><div class="empty-title">No deliveries this month</div><div class="empty-sub">Tap + to log a delivery</div></div>`;return;}
+  el.innerHTML=deliveries.map(d=>{
+    const vendor=vendors.find(v=>v.id==d.vendorId);
+    const vname=vendor?vendor.name:'Unknown';
+    const inits=initials(vname); const vc=vendor?vendor.color:0;
+    return `<div class="delivery-card">
+      <div class="delivery-card-top">
+        <div class="list-avatar vc-${vc}" style="width:46px;height:46px;border-radius:12px;font-size:15px;">${inits}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${vname}</div>
+          <div style="font-size:12px;color:var(--text-muted);">${fmtDate(d.date)} · ${d.canType}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:17px;font-weight:800;color:var(--primary);">₹${d.total.toLocaleString('en-IN')}</div>
+          <div style="font-size:11px;color:var(--text-muted);">@ ₹${d.price}/can</div>
+        </div>
+      </div>
+      <div class="delivery-card-meta">
+        <span class="badge badge-blue">🛢️ ${d.given} given</span>
+        <span class="badge badge-orange">🔄 ${d.empty} returned</span>
+        ${d.remarks?`<span style="font-size:11px;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.remarks}</span>`:''}
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="btn btn-icon btn-edit" onclick="openDeliveryModal(${d.id})">✏️</button>
+          <button class="btn btn-icon btn-del"  onclick="deleteDelivery(${d.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PRICES — Full CRUD ────────────────────────────────────────────────────────
+function openPriceModal(id) {
+  document.getElementById('price-edit-id').value=id||'';
+  document.getElementById('price-modal-title').textContent=id?'Edit Price Entry':'Add Price Entry';
+  if(id){const p=DB.get('prices').find(x=>x.id==id);document.getElementById('p-name').value=p.name;document.getElementById('p-price').value=p.price;document.getElementById('p-date').value=p.date;document.getElementById('p-notes').value=p.notes||'';}
+  else{['p-name','p-notes'].forEach(i=>document.getElementById(i).value='');document.getElementById('p-price').value='';document.getElementById('p-date').value=today();}
+  openModal('price-modal');
+}
+function savePrice() {
+  const name=document.getElementById('p-name').value.trim();
+  const price=parseFloat(document.getElementById('p-price').value);
+  const date=document.getElementById('p-date').value;
+  if(!name||!price||!date){showToast('⚠️ All fields are required');return;}
+  const prices=DB.get('prices');
+  const editId=document.getElementById('price-edit-id').value;
+  const obj={name,price,date,notes:document.getElementById('p-notes').value.trim()};
+  if(editId){prices[prices.findIndex(p=>p.id==editId)]={...prices.find(p=>p.id==editId),...obj};showToast('✅ Price updated!');}
+  else{obj.id=DB.nextId('prices');prices.push(obj);showToast('✅ Price added!');}
+  DB.set('prices',prices); closeModal('price-modal'); renderPrices();
+}
+function deletePrice(id) {
+  const p=DB.get('prices').find(x=>x.id==id);
+  confirm2('Delete this price entry?',`${p.name} · ₹${p.price} · from ${fmtDate(p.date)}`,()=>{
+    DB.set('prices',DB.get('prices').filter(x=>x.id!=id));
+    renderPrices(); showToast('🗑️ Price entry deleted');
+  });
+}
+function renderPrices() {
+  const prices=DB.get('prices');
+  const types=[...new Set(prices.map(p=>p.name))];
+  document.getElementById('cantype-count-label').textContent=types.length+' types';
+  document.getElementById('price-history-count').textContent=prices.length+' entries';
+  const typeEl=document.getElementById('can-types-list');
+  if(!types.length){typeEl.innerHTML=`<div class="empty-state"><div class="empty-icon">🏷️</div><div class="empty-title">No can types yet</div><div class="empty-sub">Tap + to add your first can type and price</div></div>`;}
+  else{typeEl.innerHTML=types.map((t,i)=>`<div class="can-item"><div class="can-icon-wrap" style="background:${GRAD[i%6]};">${getCanIcon(t)}</div><div class="can-info"><div class="can-name">${t}</div><div class="can-price-unit">Current price</div></div><div style="text-align:right;"><div class="can-price-val">₹${getCurrentPrice(t)??'—'}</div><div class="can-price-unit">per can</div></div></div>`).join('');}
+  const histEl=document.getElementById('price-history-list');
+  const sorted=[...prices].sort((a,b)=>b.date.localeCompare(a.date));
+  histEl.innerHTML=sorted.map(p=>`
+    <div class="price-row">
+      <div style="flex:1;min-width:0;"><div class="pname">${getCanIcon(p.name)} ${p.name}</div><div class="pdate">📅 From ${fmtDate(p.date)}${p.notes?' · '+p.notes:''}</div></div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="price-rs">₹${p.price}</div>
+        <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end;">
+          <button class="btn btn-icon btn-edit btn-sm" onclick="openPriceModal(${p.id})">✏️</button>
+          <button class="btn btn-icon btn-del  btn-sm" onclick="deletePrice(${p.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('')||'<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px;">No price history yet</div>';
+}
+
+// ── REPORTS ───────────────────────────────────────────────────────────────────
+function renderReport() {
+  const month   =document.getElementById('report-month').value||getCurrentMonth();
+  const vendorId=document.getElementById('report-vendor-filter').value;
+  const vendors =DB.get('vendors');
+  let deliveries=DB.get('deliveries').filter(d=>d.date.startsWith(month));
+  if(vendorId) deliveries=deliveries.filter(d=>d.vendorId==vendorId);
+  const tGiven=deliveries.reduce((a,d)=>a+d.given,0);
+  const tEmpty=deliveries.reduce((a,d)=>a+(d.empty||0),0);
+  const tRev  =deliveries.reduce((a,d)=>a+d.total,0);
+  const pending=tGiven-tEmpty;
+  const byType={};
+  deliveries.forEach(d=>{if(!byType[d.canType])byType[d.canType]={given:0,empty:0,revenue:0};byType[d.canType].given+=d.given;byType[d.canType].empty+=d.empty||0;byType[d.canType].revenue+=d.total;});
+  const byVendor={};
+  deliveries.forEach(d=>{const v=vendors.find(x=>x.id==d.vendorId);const k=v?v.name:'Unknown';if(!byVendor[k])byVendor[k]={given:0,empty:0,revenue:0,color:v?.color||0};byVendor[k].given+=d.given;byVendor[k].empty+=d.empty||0;byVendor[k].revenue+=d.total;});
+  const el=document.getElementById('report-content');
+  if(!deliveries.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No data for this period</div></div>`;return;}
+  el.innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-card blue"><div class="stat-icon">🛢️</div><div class="stat-label">Cans Given</div><div class="stat-value">${tGiven}</div></div>
+      <div class="stat-card orange"><div class="stat-icon">🔄</div><div class="stat-label">Empties Back</div><div class="stat-value">${tEmpty}</div></div>
+      <div class="stat-card green"><div class="stat-icon">💰</div><div class="stat-label">Revenue</div><div class="stat-value" style="font-size:19px;">₹${tRev.toLocaleString('en-IN')}</div></div>
+      <div class="stat-card red"><div class="stat-icon">📦</div><div class="stat-label">Outstanding</div><div class="stat-value">${pending}</div></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title" style="margin-bottom:12px;">By Can Type</div>
+      ${Object.entries(byType).map(([t,v])=>`<div class="report-line"><span class="report-key">${getCanIcon(t)} ${t}</span><span class="report-val">${v.given} cans · ₹${v.revenue.toLocaleString('en-IN')}</span></div>`).join('')}
+      <div class="report-line total"><span class="report-key">Grand Total</span><span class="report-val">₹${tRev.toLocaleString('en-IN')}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px;">By Vendor</div>
+      ${Object.entries(byVendor).map(([name,v])=>{const pct=tRev>0?Math.round(v.revenue/tRev*100):0;return `<div style="margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;"><div class="list-avatar vc-${v.color}" style="width:36px;height:36px;border-radius:9px;font-size:13px;">${initials(name)}</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;">${name}</div><div style="font-size:12px;color:var(--text-muted);">${v.given} given · ${v.empty} returned · ${pct}%</div></div><div style="font-size:15px;font-weight:800;color:var(--primary);">₹${v.revenue.toLocaleString('en-IN')}</div></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(135deg,#0ea5e9,#0284c7);"></div></div></div>`;}).join('')}
+    </div>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const month=getCurrentMonth();
+  const deliveries=DB.get('deliveries').filter(d=>d.date.startsWith(month));
+  const vendors=DB.get('vendors');
+  const tGiven=deliveries.reduce((a,d)=>a+d.given,0);
+  const tEmpty=deliveries.reduce((a,d)=>a+(d.empty||0),0);
+  const tRev  =deliveries.reduce((a,d)=>a+d.total,0);
+  const pending=tGiven-tEmpty;
+  document.getElementById('dash-revenue').textContent='₹'+tRev.toLocaleString('en-IN');
+  document.getElementById('dash-cans-given').textContent=tGiven;
+  document.getElementById('dash-cans-empty').textContent=tEmpty;
+  document.getElementById('dash-vendors').textContent=vendors.length;
+  document.getElementById('dash-pending').textContent=pending;
+  document.getElementById('stat-given').textContent=tGiven;
+  document.getElementById('stat-empty').textContent=tEmpty;
+  document.getElementById('stat-revenue').textContent='₹'+tRev.toLocaleString('en-IN');
+  document.getElementById('stat-pending').textContent=pending;
+  const recent=[...DB.get('deliveries')].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+  const el=document.getElementById('recent-deliveries-list');
+  if(!recent.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🚚</div><div class="empty-title">No deliveries yet</div><div class="empty-sub">Tap + to log your first delivery</div></div>`;return;}
+  el.innerHTML=recent.map(d=>{
+    const vendor=vendors.find(v=>v.id==d.vendorId);
+    const vname=vendor?vendor.name:'Unknown'; const inits=initials(vname); const vc=vendor?vendor.color:0;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);">
+      <div class="list-avatar vc-${vc}" style="width:40px;height:40px;border-radius:10px;font-size:14px;flex-shrink:0;">${inits}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${vname}</div><div style="font-size:12px;color:var(--text-muted);">${fmtShort(d.date)} · ${d.given} cans · 🔄 ${d.empty}</div></div>
+      <div style="font-size:15px;font-weight:800;color:var(--primary);flex-shrink:0;">₹${d.total.toLocaleString('en-IN')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── REPORT VENDOR FILTER ──────────────────────────────────────────────────────
+function populateReportVendorFilter() {
+  const vendors=DB.get('vendors'); const cur=document.getElementById('report-vendor-filter').value;
+  document.getElementById('report-vendor-filter').innerHTML='<option value="">All Vendors</option>'+vendors.map(v=>`<option value="${v.id}" ${v.id==cur?'selected':''}>${v.name}</option>`).join('');
+}
+
+// ── REFRESH ALL ───────────────────────────────────────────────────────────────
+function refreshAll() {
+  renderDashboard();
+  renderVendors();
+  populateMonthFilter('delivery-month-filter');
+  populateMonthFilter('report-month');
+  renderDeliveries();
+  renderPrices();
+  populateReportVendorFilter();
+  renderReport();
+}
+
+// ── HEADER DATE ───────────────────────────────────────────────────────────────
+function updateHeaderDate() {
+  const n=new Date();
+  document.getElementById('headerDate').innerHTML=`<div>${n.toLocaleDateString('en-IN',{weekday:'short'})}, ${n.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div><div>${n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>`;
+}
+updateHeaderDate(); setInterval(updateHeaderDate,60000);
+refreshAll();
+</script>
+</body>
+</html>
